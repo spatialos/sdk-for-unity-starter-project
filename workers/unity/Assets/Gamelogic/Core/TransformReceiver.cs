@@ -1,9 +1,9 @@
 ﻿using Assets.Gamelogic.Utils;
-using UnityEngine;
-using Improbable.Global;
+using Improbable.Core;
 using Improbable.Unity.Visualizer;
+using UnityEngine;
 
-namespace Assets.Gamelogic.Global
+namespace Assets.Gamelogic.Core
 {
     public class TransformReceiver : MonoBehaviour
     {

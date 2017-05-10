@@ -1,11 +1,11 @@
-﻿using Assets.Gamelogic.Global;
-using Improbable.Worker;
-using Improbable.Global;
+﻿using Assets.Gamelogic.Core;
+using Improbable.Core;
 using Improbable.Math;
 using Improbable.Player;
 using Improbable.Unity.Core.Acls;
+using Improbable.Worker;
+using Quaternion = Improbable.Core.Quaternion;
 using UnityEngine;
-using Quaternion = Improbable.Global.Quaternion;
 
 namespace Assets.Gamelogic.EntityTemplates
 {

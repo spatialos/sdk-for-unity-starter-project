@@ -1,11 +1,11 @@
-﻿using Assets.Gamelogic.Global;
+﻿using Assets.Gamelogic.Core;
 using Assets.Gamelogic.Utils;
 using Improbable.Entity.Component;
 using Improbable.Player;
-using Improbable.Unity.Visualizer;
-using UnityEngine;
 using Improbable.Unity;
 using Improbable.Unity.Core;
+using Improbable.Unity.Visualizer;
+using UnityEngine;
 
 namespace Assets.Gamelogic.Player
 {
@@ -26,6 +26,7 @@ namespace Assets.Gamelogic.Player
 
         private void OnDisable()
         {
+            ClientConnectionWriter.CommandReceiver.OnDisconnectClient.DeregisterResponse();
             ClientConnectionWriter.CommandReceiver.OnHeartbeat.DeregisterResponse();
             StopCoroutine(heartbeatCoroutine);
         }
@@ -34,7 +35,7 @@ namespace Assets.Gamelogic.Player
                                         ClientDisconnectRequest,
                                         ClientDisconnectResponse> handle)
         {
-            SpatialOS.Commands.DeleteEntity(ClientConnectionWriter, gameObject.EntityId());
+            DeletePlayerEntity();
         }
 
         private HeartbeatResponse OnHeartbeat(HeartbeatRequest request, ICommandCallerInfo callerinfo)

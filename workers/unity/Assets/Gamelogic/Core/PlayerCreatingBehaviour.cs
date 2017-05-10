@@ -1,13 +1,13 @@
 ﻿using Assets.Gamelogic.EntityTemplates;
 using Improbable;
 using Improbable.Entity.Component;
-using Improbable.Global;
+using Improbable.Core;
 using Improbable.Unity;
 using Improbable.Unity.Core;
 using Improbable.Unity.Visualizer;
 using UnityEngine;
 
-namespace Assets.Gamelogic.Global
+namespace Assets.Gamelogic.Core
 {
     [WorkerType(WorkerPlatform.UnityWorker)]
     public class PlayerCreatingBehaviour : MonoBehaviour

@@ -1,11 +1,11 @@
-﻿using Assets.Gamelogic.Global;
-using UnityEngine;
+﻿using Assets.Gamelogic.Core;
 using Assets.Gamelogic.Utils;
-using Improbable.Global;
+using Improbable.Core;
 using Improbable.Player;
 using Improbable.Unity;
 using Improbable.Unity.Core;
 using Improbable.Unity.Visualizer;
+using UnityEngine;
 
 namespace Assets.Gamelogic.Player
 {

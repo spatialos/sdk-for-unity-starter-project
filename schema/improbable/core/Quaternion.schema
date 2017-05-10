@@ -1,4 +1,4 @@
-package improbable.global;
+package improbable.core;
 
 type Quaternion {
   float x = 1;

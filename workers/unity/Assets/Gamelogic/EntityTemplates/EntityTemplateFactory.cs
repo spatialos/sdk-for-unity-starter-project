@@ -1,57 +1,55 @@
 ﻿using Assets.Gamelogic.Core;
+using Improbable;
 using Improbable.Core;
-using Improbable.Math;
 using Improbable.Player;
 using Improbable.Unity.Core.Acls;
 using Improbable.Worker;
 using Quaternion = Improbable.Core.Quaternion;
 using UnityEngine;
+using Improbable.Unity.Entity;
 
 namespace Assets.Gamelogic.EntityTemplates
 {
     public class EntityTemplateFactory : MonoBehaviour
     {
-        public static SnapshotEntity CreatePlayerCreatorTemplate()
+        public static Entity CreatePlayerCreatorTemplate()
         {
-            var playerCreatorEntityTemplate = new SnapshotEntity { Prefab = SimulationSettings.PlayerCreatorPrefabName };
-
-            playerCreatorEntityTemplate.Add(new WorldTransform.Data(Coordinates.ZERO, new Quaternion(0,0,0,0)));
-            playerCreatorEntityTemplate.Add(new PlayerCreation.Data());
-
-            var acl = Acl.GenerateServerAuthoritativeAcl(playerCreatorEntityTemplate);
-            playerCreatorEntityTemplate.SetAcl(acl);
+            var playerCreatorEntityTemplate = EntityBuilder.Begin()
+                .AddPositionComponent(Improbable.Coordinates.ZERO.ToUnityVector(), CommonRequirementSets.PhysicsOnly)
+                .AddMetadataComponent(entityType: SimulationSettings.CubePrefabName)
+                .SetPersistence(true)
+                .SetReadAcl(CommonRequirementSets.PhysicsOrVisual)
+                .AddComponent(new Rotation.Data(new Quaternion(0, 0, 0, 0)), CommonRequirementSets.PhysicsOnly)
+                .AddComponent(new PlayerCreation.Data(), CommonRequirementSets.PhysicsOnly)
+                .Build();
 
             return playerCreatorEntityTemplate;
         }
 
         public static Entity CreatePlayerTemplate(string clientId)
         {
-            var playerTemplate = new SnapshotEntity { Prefab = SimulationSettings.PlayerPrefabName };
-
-            playerTemplate.Add(new WorldTransform.Data(Coordinates.ZERO, new Quaternion(0, 0, 0, 0)));
-            playerTemplate.Add(new ClientAuthorityCheck.Data());
-            playerTemplate.Add(new ClientConnection.Data(SimulationSettings.TotalHeartbeatsBeforeTimeout));
-
-            var acl = Acl.Build()
-                .SetReadAccess(CommonRequirementSets.PhysicsOrVisual)
-                .SetWriteAccess<WorldTransform>(CommonRequirementSets.PhysicsOnly)
-                .SetWriteAccess<ClientAuthorityCheck>(CommonRequirementSets.SpecificClientOnly(clientId))
-                .SetWriteAccess<ClientConnection>(CommonRequirementSets.PhysicsOnly);
-            playerTemplate.SetAcl(acl);
+            var playerTemplate = EntityBuilder.Begin()
+                .AddPositionComponent(Improbable.Coordinates.ZERO.ToUnityVector(), CommonRequirementSets.PhysicsOnly)
+                .AddMetadataComponent(entityType: SimulationSettings.PlayerPrefabName)
+                .SetPersistence(false)
+                .SetReadAcl(CommonRequirementSets.PhysicsOrVisual)
+                .AddComponent(new Rotation.Data(new Quaternion(0,0,0,0)), CommonRequirementSets.PhysicsOnly)
+                .AddComponent(new ClientAuthorityCheck.Data(), CommonRequirementSets.SpecificClientOnly(clientId))
+                .AddComponent(new ClientConnection.Data(SimulationSettings.TotalHeartbeatsBeforeTimeout), CommonRequirementSets.PhysicsOnly)
+                .Build();
 
             return playerTemplate;
         }
 
-        public static SnapshotEntity CreateCubeTemplate()
+        public static Entity CreateCubeTemplate()
         {
-            var cubeTemplate = new SnapshotEntity { Prefab = SimulationSettings.CubePrefabName };
-
-            cubeTemplate.Add(new WorldTransform.Data(new Coordinates(0,0,5), new Quaternion(0, 0, 0, 0)));
-
-            var acl = Acl.Build()
-                .SetReadAccess(CommonRequirementSets.PhysicsOrVisual)
-                .SetWriteAccess<WorldTransform>(CommonRequirementSets.PhysicsOnly);
-            cubeTemplate.SetAcl(acl);
+            var cubeTemplate = EntityBuilder.Begin()
+                .AddPositionComponent(Improbable.Coordinates.ZERO.ToUnityVector(), CommonRequirementSets.PhysicsOnly)
+                .AddMetadataComponent(entityType: SimulationSettings.CubePrefabName)
+                .SetPersistence(true)
+                .SetReadAcl(CommonRequirementSets.PhysicsOrVisual)
+                .AddComponent(new Rotation.Data(new Quaternion(0, 0, 0, 0)), CommonRequirementSets.PhysicsOnly)
+                .Build();
 
             return cubeTemplate;
         }

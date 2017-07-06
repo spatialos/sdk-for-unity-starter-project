@@ -13,7 +13,7 @@ This is a SpatialOS starter project with useful core features that you can exten
 
 It contains:
 
-* A Player spawned on client connection as per the [Unity Client Lifecycle Guide](https://spatialos.improbable.io/docs/reference/latest/tutorials/client-lifecycle).
+* A Player spawned on client connection as per the [Unity Client Lifecycle Guide](https://spatialos.improbable.io/docs/reference/latest/tutorials/unity-client-lifecycle).
 * A Cube spawned through a snapshot via an entity template method and an Unity prefab.
 * The rest of the features included in the [BlankProject](https://github.com/spatialos/BlankProject).
 

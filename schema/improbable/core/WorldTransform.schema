@@ -1,9 +1,0 @@
-package improbable.core;
-
-import "improbable/core/Quaternion.schema";
-
-component WorldTransform {
-    id = 1000;
-    EntityPosition position = 1;
-    improbable.core.Quaternion rotation = 2;
-}

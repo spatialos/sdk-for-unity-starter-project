@@ -34,7 +34,7 @@ namespace Assets.Gamelogic.Core
         private void CreatePlayerWithReservedId(string clientWorkerId)
         {
             SpatialOS.Commands.ReserveEntityId(PlayerCreationWriter)
-                .OnSuccess(reservedEntityId => CreatePlayer(clientWorkerId, reservedEntityId))
+                .OnSuccess(result => CreatePlayer(clientWorkerId, result.ReservedEntityId))
                 .OnFailure(failure => OnFailedReservation(failure, clientWorkerId));
         }
 
@@ -47,7 +47,7 @@ namespace Assets.Gamelogic.Core
         private void CreatePlayer(string clientWorkerId, EntityId entityId)
         {
             var playerEntityTemplate = EntityTemplateFactory.CreatePlayerTemplate(clientWorkerId);
-            SpatialOS.Commands.CreateEntity(PlayerCreationWriter, entityId, SimulationSettings.PlayerPrefabName, playerEntityTemplate)
+            SpatialOS.Commands.CreateEntity(PlayerCreationWriter, entityId, playerEntityTemplate)
                 .OnFailure(failure => OnFailedPlayerCreation(failure, clientWorkerId, entityId));
         }
 

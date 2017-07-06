@@ -1,4 +1,5 @@
-﻿using Assets.Gamelogic.Utils;
+﻿using System;
+using Assets.Gamelogic.Utils;
 using Improbable;
 using Improbable.Core;
 using Improbable.Unity;
@@ -74,9 +75,9 @@ namespace Assets.Gamelogic.Core
         }
 
         // Retry a failed creation of the Player entity after a short delay.
-        private static void OnCreatePlayerFailure(ICommandErrorDetails _, EntityId playerCreatorEntityId)
+        private static void OnCreatePlayerFailure(ICommandErrorDetails details, EntityId playerCreatorEntityId)
         {
-            Debug.LogWarning("CreatePlayer command failed - you probably tried to connect too soon. Try again in a few seconds.");
+            Debug.LogWarningFormat("CreatePlayer command failed. Status code = {0}. - you probably tried to connect too soon. Try again in a few seconds.", details.StatusCode.ToString());
             TimerUtils.WaitAndPerform(SimulationSettings.PlayerEntityCreationRetrySecs, () => RequestPlayerCreation(playerCreatorEntityId));
         }
     }

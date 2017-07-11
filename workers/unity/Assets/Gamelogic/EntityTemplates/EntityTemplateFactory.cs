@@ -16,7 +16,7 @@ namespace Assets.Gamelogic.EntityTemplates
         {
             var playerCreatorEntityTemplate = EntityBuilder.Begin()
                 .AddPositionComponent(Improbable.Coordinates.ZERO.ToUnityVector(), CommonRequirementSets.PhysicsOnly)
-                .AddMetadataComponent(entityType: SimulationSettings.CubePrefabName)
+                .AddMetadataComponent(entityType: SimulationSettings.PlayerCreatorPrefabName)
                 .SetPersistence(true)
                 .SetReadAcl(CommonRequirementSets.PhysicsOrVisual)
                 .AddComponent(new Rotation.Data(new Quaternion(0, 0, 0, 0)), CommonRequirementSets.PhysicsOnly)

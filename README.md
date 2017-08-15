@@ -1,7 +1,7 @@
 # Starter Project
 ---
 
-*Copyright Improbable Worlds Ltd, 2017*
+*Copyright (C) 2017 Improbable Worlds Limited. All rights reserved.*
 
 - *GitHub repository*: [https://github.com/spatialos/StarterProject](https://github.com/spatialos/StarterProject)
 

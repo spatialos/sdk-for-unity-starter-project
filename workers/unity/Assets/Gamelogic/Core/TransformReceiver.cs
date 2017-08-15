@@ -1,7 +1,5 @@
-﻿using Assets.Gamelogic.Utils;
-using Improbable;
+﻿using Improbable;
 using Improbable.Core;
-using Improbable.Unity.CodeGeneration;
 using Improbable.Unity.Visualizer;
 using UnityEngine;
 
@@ -15,7 +13,7 @@ namespace Assets.Gamelogic.Core
         void OnEnable()
         {
             transform.position = PositionReader.Data.coords.ToUnityVector();
-            transform.rotation = MathUtils.ToUnityQuaternion(RotationReader.Data.rotation);
+            transform.rotation = RotationReader.Data.rotation.ToUnityQuaternion();
 
             PositionReader.ComponentUpdated.Add(OnPositionUpdated);
             RotationReader.ComponentUpdated.Add(OnRotationUpdated);
@@ -44,7 +42,7 @@ namespace Assets.Gamelogic.Core
             {
                 if (update.rotation.HasValue)
                 {
-                    transform.rotation = MathUtils.ToUnityQuaternion(update.rotation.Value);
+                    transform.rotation = update.rotation.Value.ToUnityQuaternion();
                 }
             }
         }

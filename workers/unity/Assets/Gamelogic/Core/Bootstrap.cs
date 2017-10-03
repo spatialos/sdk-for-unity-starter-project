@@ -7,10 +7,12 @@ using Improbable.Unity.Configuration;
 using Improbable.Unity.Core;
 using Improbable.Unity.Core.EntityQueries;
 using UnityEngine;
+using Improbable.Worker;
 
-// Placed on a GameObject in a Unity scene to execute SpatialOS connection logic on startup.
+
 namespace Assets.Gamelogic.Core
 {
+    // Placed on a GameObject in a Unity scene to execute SpatialOS connection logic on startup.
     public class Bootstrap : MonoBehaviour
     {
         public WorkerConfigurationData Configuration = new WorkerConfigurationData();
@@ -40,7 +42,7 @@ namespace Assets.Gamelogic.Core
         }
 
         // Search for the PlayerCreator entity in the world in order to send a CreatePlayer command.
-        public static void CreatePlayer()
+        public void CreatePlayer()
         {
             var playerCreatorQuery = Query.HasComponent<PlayerCreation>().ReturnOnlyEntityIds();
             SpatialOS.WorkerCommands.SendQuery(playerCreatorQuery)
@@ -48,11 +50,12 @@ namespace Assets.Gamelogic.Core
                 .OnFailure(OnFailedPlayerCreatorQuery);
         }
 
-        private static void OnSuccessfulPlayerCreatorQuery(EntityQueryResult queryResult)
+        private void OnSuccessfulPlayerCreatorQuery(EntityQueryResult queryResult)
         {
             if (queryResult.EntityCount < 1)
             {
                 Debug.LogError("Failed to find PlayerCreator. SpatialOS probably hadn't finished loading the initial snapshot. Try again in a few seconds.");
+                StartCoroutine(TimerUtils.WaitAndPerform(SimulationSettings.PlayerCreatorQueryRetrySecs, CreatePlayer));
                 return;
             }
 
@@ -61,24 +64,38 @@ namespace Assets.Gamelogic.Core
         }
 
         // Retry a failed search for the PlayerCreator entity after a short delay.
-        private static void OnFailedPlayerCreatorQuery(ICommandErrorDetails _)
+        private void OnFailedPlayerCreatorQuery(ICommandErrorDetails _)
         {
             Debug.LogError("PlayerCreator query failed. SpatialOS workers probably haven't started yet. Try again in a few seconds.");
-            TimerUtils.WaitAndPerform(SimulationSettings.PlayerCreatorQueryRetrySecs, CreatePlayer);
+            StartCoroutine(TimerUtils.WaitAndPerform(SimulationSettings.PlayerCreatorQueryRetrySecs, CreatePlayer));
         }
 
         // Send a CreatePlayer command to the PLayerCreator entity requesting a Player entity be spawned.
-        private static void RequestPlayerCreation(EntityId playerCreatorEntityId)
+        private void RequestPlayerCreation(EntityId playerCreatorEntityId)
         {
             SpatialOS.WorkerCommands.SendCommand(PlayerCreation.Commands.CreatePlayer.Descriptor, new CreatePlayerRequest(), playerCreatorEntityId)
-                .OnFailure(response => OnCreatePlayerFailure(response, playerCreatorEntityId));
+                .OnSuccess(response => OnCreatePlayerCommandSuccess(response, playerCreatorEntityId))
+                .OnFailure(response => OnCreatePlayerCommandFailure(response, playerCreatorEntityId));
+        }
+
+        private void OnCreatePlayerCommandSuccess(CreatePlayerResponse response, EntityId playerCreatorEntityId)
+        {
+            var statusCode = (StatusCode) response.statusCode;
+            if (statusCode != StatusCode.Success) {
+                Debug.LogWarningFormat("PlayerCreator failed to create the player entity. Status code = {0}. Try again in a few seconds.", statusCode.ToString());
+                RetryCreatePlayerCommand(playerCreatorEntityId);
+            }
+        }
+
+        private void OnCreatePlayerCommandFailure(ICommandErrorDetails details, EntityId playerCreatorEntityId){
+            Debug.LogWarningFormat("CreatePlayer command failed. Status code = {0}. - you probably tried to connect too soon. Try again in a few seconds.", details.StatusCode.ToString());
+            RetryCreatePlayerCommand(playerCreatorEntityId);
         }
 
         // Retry a failed creation of the Player entity after a short delay.
-        private static void OnCreatePlayerFailure(ICommandErrorDetails details, EntityId playerCreatorEntityId)
+        private void RetryCreatePlayerCommand(EntityId playerCreatorEntityId)
         {
-            Debug.LogWarningFormat("CreatePlayer command failed. Status code = {0}. - you probably tried to connect too soon. Try again in a few seconds.", details.StatusCode.ToString());
-            TimerUtils.WaitAndPerform(SimulationSettings.PlayerEntityCreationRetrySecs, () => RequestPlayerCreation(playerCreatorEntityId));
+            StartCoroutine(TimerUtils.WaitAndPerform(SimulationSettings.PlayerEntityCreationRetrySecs, () => RequestPlayerCreation(playerCreatorEntityId)));
         }
     }
 }

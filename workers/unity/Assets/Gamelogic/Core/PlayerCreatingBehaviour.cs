@@ -6,6 +6,7 @@ using Improbable.Unity;
 using Improbable.Unity.Core;
 using Improbable.Unity.Visualizer;
 using UnityEngine;
+using Improbable.Worker;
 
 namespace Assets.Gamelogic.Core
 {
@@ -17,7 +18,7 @@ namespace Assets.Gamelogic.Core
 
         private void OnEnable()
         {
-            PlayerCreationWriter.CommandReceiver.OnCreatePlayer.RegisterResponse(OnCreatePlayer);
+            PlayerCreationWriter.CommandReceiver.OnCreatePlayer.RegisterAsyncResponse(OnCreatePlayer);
         }
 
         private void OnDisable()
@@ -25,36 +26,13 @@ namespace Assets.Gamelogic.Core
             PlayerCreationWriter.CommandReceiver.OnCreatePlayer.DeregisterResponse();
         }
 
-        private CreatePlayerResponse OnCreatePlayer(CreatePlayerRequest request, ICommandCallerInfo callerinfo)
+        private void OnCreatePlayer(ResponseHandle<PlayerCreation.Commands.CreatePlayer, CreatePlayerRequest, CreatePlayerResponse> responseHandle)
         {
-            CreatePlayerWithReservedId(callerinfo.CallerWorkerId);
-            return new CreatePlayerResponse();
-        }
-
-        private void CreatePlayerWithReservedId(string clientWorkerId)
-        {
-            SpatialOS.Commands.ReserveEntityId(PlayerCreationWriter)
-                .OnSuccess(result => CreatePlayer(clientWorkerId, result.ReservedEntityId))
-                .OnFailure(failure => OnFailedReservation(failure, clientWorkerId));
-        }
-
-        private void OnFailedReservation(ICommandErrorDetails response, string clientWorkerId)
-        {
-            Debug.LogError("Failed to Reserve EntityId for Player: " + response.ErrorMessage + ". Retrying...");
-            CreatePlayerWithReservedId(clientWorkerId);
-        }
-
-        private void CreatePlayer(string clientWorkerId, EntityId entityId)
-        {
+            var clientWorkerId = responseHandle.CallerInfo.CallerWorkerId;
             var playerEntityTemplate = EntityTemplateFactory.CreatePlayerTemplate(clientWorkerId);
-            SpatialOS.Commands.CreateEntity(PlayerCreationWriter, entityId, playerEntityTemplate)
-                .OnFailure(failure => OnFailedPlayerCreation(failure, clientWorkerId, entityId));
-        }
-
-        private void OnFailedPlayerCreation(ICommandErrorDetails response, string clientWorkerId, EntityId entityId)
-        {
-            Debug.LogError("Failed to Create Player Entity: " + response.ErrorMessage + ". Retrying...");
-            CreatePlayer(clientWorkerId, entityId);
+            SpatialOS.Commands.CreateEntity (PlayerCreationWriter, playerEntityTemplate)
+                .OnSuccess (_ => responseHandle.Respond (new CreatePlayerResponse ((int) StatusCode.Success)))
+                .OnFailure (failure => responseHandle.Respond (new CreatePlayerResponse ((int) failure.StatusCode)));
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Improbable;
 using Improbable.Core;
 using Improbable.Unity.Visualizer;
+using Improbable.Worker;
 using UnityEngine;
 
 namespace Assets.Gamelogic.Core
@@ -27,7 +28,7 @@ namespace Assets.Gamelogic.Core
 
         void OnPositionUpdated(Position.Update update)
         {
-            if (!PositionReader.HasAuthority)
+            if (PositionReader.Authority == Authority.NotAuthoritative)
             {
                 if (update.coords.HasValue)
                 {
@@ -38,7 +39,7 @@ namespace Assets.Gamelogic.Core
 
         void OnRotationUpdated(Rotation.Update update)
         {
-            if (!RotationReader.HasAuthority)
+            if (RotationReader.Authority == Authority.NotAuthoritative)
             {
                 if (update.rotation.HasValue)
                 {

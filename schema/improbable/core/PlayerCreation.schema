@@ -1,7 +1,9 @@
 package improbable.core;
 
 type CreatePlayerRequest {}
-type CreatePlayerResponse {}
+type CreatePlayerResponse {
+    int32 status_code = 1;
+}
 
 component PlayerCreation {
   id = 1001;

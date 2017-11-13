@@ -80,14 +80,25 @@ namespace Assets.Gamelogic.Core
 
         private void OnCreatePlayerCommandSuccess(CreatePlayerResponse response, EntityId playerCreatorEntityId)
         {
-            var statusCode = (StatusCode) response.statusCode;
-            if (statusCode != StatusCode.Success) {
-                Debug.LogWarningFormat("PlayerCreator failed to create the player entity. Status code = {0}. Try again in a few seconds.", statusCode.ToString());
-                RetryCreatePlayerCommand(playerCreatorEntityId);
+            switch (response.responseCode)
+            {
+                case ResponseCode.EntityForPlayerExists:
+                    Debug.Log("Player entity already exists, request was ignored.");
+                    break;
+                case ResponseCode.ExistingRequestInProgress:
+                    Debug.Log("A request was already in progress, this request was ignored.");
+                    RetryCreatePlayerCommand(playerCreatorEntityId);
+                    break;
+                case ResponseCode.Failure:
+                    var failureCode = (StatusCode)response.failureCode.Value;
+                    Debug.LogWarningFormat("PlayerCreator failed to create the player entity. Status code = {0}. Try again in a few seconds.", failureCode.ToString());
+                    RetryCreatePlayerCommand(playerCreatorEntityId);
+                    break;
             }
         }
 
-        private void OnCreatePlayerCommandFailure(ICommandErrorDetails details, EntityId playerCreatorEntityId){
+        private void OnCreatePlayerCommandFailure(ICommandErrorDetails details, EntityId playerCreatorEntityId)
+        {
             Debug.LogWarningFormat("CreatePlayer command failed. Status code = {0}. - you probably tried to connect too soon. Try again in a few seconds.", details.StatusCode.ToString());
             RetryCreatePlayerCommand(playerCreatorEntityId);
         }

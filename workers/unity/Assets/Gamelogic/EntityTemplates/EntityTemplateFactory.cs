@@ -7,6 +7,7 @@ using Improbable.Worker;
 using Quaternion = UnityEngine.Quaternion;
 using UnityEngine;
 using Improbable.Unity.Entity;
+using Improbable.Collections;
 
 namespace Assets.Gamelogic.EntityTemplates
 {
@@ -21,12 +22,13 @@ namespace Assets.Gamelogic.EntityTemplates
                 .SetReadAcl(CommonRequirementSets.PhysicsOrVisual)
                 .AddComponent(new Rotation.Data(Quaternion.identity.ToNativeQuaternion()), CommonRequirementSets.PhysicsOnly)
                 .AddComponent(new PlayerCreation.Data(), CommonRequirementSets.PhysicsOnly)
+                .AddComponent(new ClientEntityStore.Data(new Map<string, EntityId>()), CommonRequirementSets.PhysicsOnly)
                 .Build();
 
             return playerCreatorEntityTemplate;
         }
 
-        public static Entity CreatePlayerTemplate(string clientId)
+        public static Entity CreatePlayerTemplate(string clientId, EntityId playerCreatorId)
         {
             var playerTemplate = EntityBuilder.Begin()
                 .AddPositionComponent(Improbable.Coordinates.ZERO.ToUnityVector(), CommonRequirementSets.PhysicsOnly)
@@ -35,7 +37,7 @@ namespace Assets.Gamelogic.EntityTemplates
                 .SetReadAcl(CommonRequirementSets.PhysicsOrVisual)
                 .AddComponent(new Rotation.Data(Quaternion.identity.ToNativeQuaternion()), CommonRequirementSets.PhysicsOnly)
                 .AddComponent(new ClientAuthorityCheck.Data(), CommonRequirementSets.SpecificClientOnly(clientId))
-                .AddComponent(new ClientConnection.Data(SimulationSettings.TotalHeartbeatsBeforeTimeout), CommonRequirementSets.PhysicsOnly)
+                .AddComponent(new ClientConnection.Data(SimulationSettings.TotalHeartbeatsBeforeTimeout, clientId, playerCreatorId), CommonRequirementSets.PhysicsOnly)
                 .Build();
 
             return playerTemplate;

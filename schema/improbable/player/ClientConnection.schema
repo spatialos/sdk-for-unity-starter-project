@@ -9,6 +9,8 @@ type HeartbeatResponse{}
 component ClientConnection {
   id = 1003;
   uint32 timeout_beats_remaining = 1;
+  string client_id = 2;
+  EntityId player_creator_id = 3;
   command HeartbeatResponse heartbeat(HeartbeatRequest);
   command ClientDisconnectResponse disconnect_client(ClientDisconnectRequest);
 }

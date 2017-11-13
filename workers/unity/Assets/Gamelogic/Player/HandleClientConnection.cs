@@ -1,5 +1,6 @@
 ﻿using Assets.Gamelogic.Core;
 using Assets.Gamelogic.Utils;
+using Improbable.Core;
 using Improbable.Entity.Component;
 using Improbable.Player;
 using Improbable.Unity;
@@ -19,7 +20,7 @@ namespace Assets.Gamelogic.Player
 
         private void OnEnable()
         {
-            ClientConnectionWriter.CommandReceiver.OnDisconnectClient.RegisterAsyncResponse(OnDisconnectClient);
+            ClientConnectionWriter.CommandReceiver.OnDisconnectClient.RegisterResponse(OnDisconnectClient);
             ClientConnectionWriter.CommandReceiver.OnHeartbeat.RegisterResponse(OnHeartbeat);
             heartbeatCoroutine = StartCoroutine(TimerUtils.CallRepeatedly(SimulationSettings.HeartbeatCheckIntervalSecs, CheckHeartbeat));
         }
@@ -31,11 +32,10 @@ namespace Assets.Gamelogic.Player
             StopCoroutine(heartbeatCoroutine);
         }
 
-        private void OnDisconnectClient(ResponseHandle<ClientConnection.Commands.DisconnectClient,
-                                        ClientDisconnectRequest,
-                                        ClientDisconnectResponse> handle)
+        private ClientDisconnectResponse OnDisconnectClient(ClientDisconnectRequest request, ICommandCallerInfo callerinfo)
         {
             DeletePlayerEntity();
+            return new ClientDisconnectResponse();
         }
 
         private HeartbeatResponse OnHeartbeat(HeartbeatRequest request, ICommandCallerInfo callerinfo)
@@ -65,7 +65,10 @@ namespace Assets.Gamelogic.Player
 
         private void DeletePlayerEntity()
         {
-            SpatialOS.Commands.DeleteEntity(ClientConnectionWriter, gameObject.EntityId());
+            SpatialOS.Commands.SendCommand(ClientConnectionWriter,
+                                           PlayerCreation.Commands.DeletePlayer.Descriptor,
+                                           new DeletePlayerRequest(ClientConnectionWriter.Data.clientId),
+                                           ClientConnectionWriter.Data.playerCreatorId);
         }
     }
 }

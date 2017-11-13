@@ -17,7 +17,12 @@
     "streaming_query": [],
     "component_delivery": {
       "default": "RELIABLE_ORDERED",
-      "checkout_all_initially": true
+      "checkout_all_initially": true,
+      "override": {
+        "improbable.core.ClientEntityStore": {
+          "checkout_initially": false
+        }
+      }
     }
   },
   "external": {

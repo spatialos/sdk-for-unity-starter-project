@@ -1,0 +1,6 @@
+package improbable.core;
+
+component ClientEntityStore {
+  id = 1006;
+  map<string, EntityId> player_entities = 1;
+}

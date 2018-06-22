@@ -7,7 +7,7 @@
 
 ## Introduction
 
-This is a [SpatialOS](https://docs.improbable.io/reference/latest/shared/concepts/spatialos) starter project to use with the [Unity SDK](https://github.com/spatialos/UnityGDK) with useful core features that you can extend to build your own SpatialOS application.
+This is a [SpatialOS](https://docs.improbable.io/reference/latest/shared/concepts/spatialos) starter project to use with the [Unity SDK](https://github.com/spatialos/UnitySDK) with useful core features that you can extend to build your own SpatialOS application.
 
 It contains:
 
